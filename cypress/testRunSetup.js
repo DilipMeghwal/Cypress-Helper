@@ -23,6 +23,7 @@ let tags = "grepTags=\"\""
 let viewportWidth = ""
 let viewportHeight = ""
 let device = ""
+let configFile = ""
 
 args.forEach(arg => {
     console.log(`arg : ${arg}`)
@@ -47,35 +48,48 @@ args.forEach(arg => {
         case "parallel":
             parallel = "--parallel"
             break;
-        case "device" : 
+        case "device":
             viewportWidth = "viewportWidth=" + devices[value]['width']
             viewportHeight = "viewportHeight=" + devices[value]['height']
             config += viewportWidth + ',' + viewportHeight
             device = value
             break;
+        case "configFile":
+            if (value != 'development') {
+                configFile = 'configFile=' + value
+            }
+            break;
     }
 })
 
-if(incognito !== ""){
+if (incognito !== "") {
     env += incognito + ','
 }
 
-if(device !== ""){
+if (device !== "") {
     env += "device=" + device + ','
+}
+
+if (configFile !== "") {
+    env += configFile + ','
 }
 
 env += tags
 
+if (config === '--config ') {
+    config = ""
+}
+
 //final command
-cypressCommand = `cypress run ${headed} ${config} ${env} ${spec} --browser ${browser} ${parallel}` 
+cypressCommand = `cypress run ${headed} ${config} ${env} ${spec} --browser ${browser} ${parallel}`
 
 console.log(`final command : ${cypressCommand}`)
 
 //command execution
-async function execute_script(cmd){
-    await exec(cmd, function(err, stdout, stderr) {
+async function execute_script(cmd) {
+    await exec(cmd, function (err, stdout, stderr) {
         console.log(stdout)
-        if(err){
+        if (err) {
             console.log(err)
             return;
         }
@@ -83,6 +97,6 @@ async function execute_script(cmd){
     });
 }
 
-return async function() {
+return async function () {
     await execute_script(cypressCommand)
 }();

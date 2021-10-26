@@ -26,4 +26,27 @@ module.exports = (on, config) => {
   })
 
   require('cypress-grep/src/plugin')(config)
+
+  const fs = require('fs-extra')
+  const path = require('path')
+
+  const env = config.env.configFile || 'development'
+  require('dotenv').config({ path: `cypress/configFiles/${env}/.env}` })
+
+  const pathToConfigFile = path.resolve(
+    '../',
+    `Cypress-Helper/cypress/configFiles/${env}`,
+    `${env}.json`
+  )
+
+  envConfigFile = fs.readJsonSync(pathToConfigFile)
+
+  Object.entries(envConfigFile).forEach((entry) => {
+    const [key, value] = entry
+    config[key] = value
+  })
+
+  config.env.secretKey = process.env.secretKey
+
+  return config
 }
